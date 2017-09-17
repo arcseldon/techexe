@@ -1,0 +1,9 @@
+This is my file to be encrypted.
+
+AES
+- Advanced Encryption Standard
+- Symmetric Cipher - uses one key for encryption and decryption
+- 16 byte block size - data is encrypted 16 bytes at a time
+- keys can be 128, 192, 256 bits long
+- has many block cipher modes
+
