@@ -6,6 +6,7 @@ Created on Sep 26, 2017
 from pprint import pprint
 import subprocess 
 import os
+from exceptions import RuntimeError
 
 def executePatchScript(executionPath, scriptFilePath):
     '''Execute script from the specified location.
@@ -105,8 +106,8 @@ class CryptKeeper():
         outputFile -- the file produced by the action
         '''
         proc = subprocess.Popen(self.baseCommand.format(action=action,
-                                                        intputFile=inputFile,
-                                                        outputFile-outputFile,
+                                                        inputFile=inputFile,
+                                                        outputFile=outputFile,
                                                         key=self.key),
                                 shell=True,
                                 executable='/bin/bash')
@@ -124,6 +125,7 @@ class CryptKeeper():
             print 'encryption successful'
         else:
             print 'encryption failed, openssl returned', returnCode
+            raise RuntimeError('encryption failed, openssl returned code {code}'.format(code=returnCode))
     
     def decrypt(self, fileToDecrypt, outputFile):
         '''perform the decryption action
@@ -133,9 +135,10 @@ class CryptKeeper():
         action = '-d'
         returnCode = self.act(action, fileToDecrypt, outputFile)
         if 0 == returnCode:
-            print 'encryption successful'
+            print 'decryption successful'
         else:
-            print 'encryption failed, openssl returned', returnCode
+            print 'decryption failed, openssl returned', returnCode
+            raise RuntimeError('decryption failed, openssl returned code {code}'.format(code=returnCode))
 
 
 
