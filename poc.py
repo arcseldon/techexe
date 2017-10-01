@@ -83,6 +83,60 @@ def installBundle(scriptExecutionPath, patchTargetPath, bundleLocation):
                 
     return wasSuccesful
 
+class CryptKeeper():
+    '''encrypts and decrypts files
+    uses openssl to perform encryption actions.
+    manages the encryption keys
+    !! hard coded password ONLY for prototyping purposes !!
+    !! hard coded passwords are NEVER OK !!
+    !! and don't get me stared about hard coded passwords in Git repositories !!
+    '''
+    def __init__(self):
+        '''initializes the base action string and key'''
+        # HARD CODED PASSWORDS ARE NEVER OK
+        # TODO load the key via a secure configuration method
+        self.key = "-k 'abomination'"
+        self.baseCommand = 'openssl enc {action} -aes-256-ctr -in {inputFile} -out {outputFile} {key}'
+    
+    def act(self, action, inputFile, outputFile):
+        '''perform the specified encryption/decryption action
+        action -- encryption '-e' or decryption '-d'
+        inputFile -- the file on which the action will be performed
+        outputFile -- the file produced by the action
+        '''
+        proc = subprocess.Popen(self.baseCommand.format(action=action,
+                                                        intputFile=inputFile,
+                                                        outputFile-outputFile,
+                                                        key=self.key),
+                                shell=True,
+                                executable='/bin/bash')
+        proc.communicate()
+        return proc.returncode
+    
+    def encrypt(self, fileToEncrypt, outputFile):
+        '''perform the encryption action
+        fileToEncrypt -- the file to be encrypted
+        outputFile -- where to produce the encrypted file
+        '''
+        action = '-e'
+        returnCode = self.act(action, fileToEncrypt, outputFile,)
+        if 0 == returnCode:
+            print 'encryption successful'
+        else:
+            print 'encryption failed, openssl returned', returnCode
+    
+    def decrypt(self, fileToDecrypt, outputFile):
+        '''perform the decryption action
+        fileToDecrypt -- the file to be decrypted
+        outputFile -- where to produce the decrypted file
+        '''
+        action = '-d'
+        returnCode = self.act(action, fileToDecrypt, outputFile)
+        if 0 == returnCode:
+            print 'encryption successful'
+        else:
+            print 'encryption failed, openssl returned', returnCode
+
 
 
 # executor
@@ -90,19 +144,14 @@ def downloadBundle(bundleId):
     # request the bundle
     
     # return the downloaded bundle path
-    return './downloadedBundle.enc'
+    return './execution/downloadedBundle.enc'
 
-def decryptBundle(encryptedBundle):
-    # decrypt the bundle
     
-    # return the bundle path
-    return './bundleArchive.tar'
 
-def untarBundle(bundlePath):
+
+def untarBundle(tarFile, targetLocation):
     pass
 
-
-    
 
 def runScript():
     pass
@@ -116,9 +165,20 @@ def applyInstruction(instruction):
     pprint(instruction)
     
     bundleId = instruction['bundle']
-    downloadBundle(bundleId)
+    encryptedBundleFile = downloadBundle(bundleId)
     
-    decryptBundle()
+    bundleFile = './execution/bundleFile.tar'
+    keeper = CryptKeeper()
+    keeper.decrypt(encryptedBundleFile, bundleFile)
+    
+    bundleLocation = './execution/{release}'.format(release=bundleId)
+    untarBundle(bundleFile, bundleLocation)
+
+    scriptExecutionPath = './execution/scriptEx'
+    patchTargetPath = './execution/patchTarget'
+    
+    installBundle(scriptExecutionPath, patchTargetPath, bundleLocation)
+    
 
 # rollback instruction
 def rollbackInstruction():
