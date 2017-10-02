@@ -141,14 +141,6 @@ class CryptKeeper():
             raise RuntimeError('decryption failed, openssl returned code {code}'.format(code=returnCode))
     
 
-# executor
-def downloadBundle(bundleId):
-    # request the bundle
-    
-    # return the downloaded bundle path
-    return './execution/downloadedBundle.enc'
-
-    
 def tarBundle(bundleId, bundleBaseDir, outputDir):
     '''create a tar file from a release directory
     the tar file will be in the outputDir and named <bundleId>.tar
@@ -173,6 +165,14 @@ def untarBundle(bundleTarFile, outputDir):
     if 0 != proc.returncode:
         raise RuntimeError('tar returned code {code}'.format(code=proc.returncode))
 
+# executor
+def downloadBundle(bundleId):
+    # request the bundle
+    
+    # return the downloaded bundle path
+    return './execution/downloadedBundle.enc'
+
+    
 
 def runScript():
     pass
