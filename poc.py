@@ -139,8 +139,7 @@ class CryptKeeper():
         else:
             print 'decryption failed, openssl returned', returnCode
             raise RuntimeError('decryption failed, openssl returned code {code}'.format(code=returnCode))
-
-
+    
 
 # executor
 def downloadBundle(bundleId):
@@ -150,10 +149,29 @@ def downloadBundle(bundleId):
     return './execution/downloadedBundle.enc'
 
     
+def tarBundle(bundleId, bundleBaseDir, outputDir):
+    '''create a tar file from a release directory
+    the tar file will be in the outputDir and named <bundleId>.tar
+    bundleId -- the name of the release directory
+    bundleBaseDir -- the directory containing the release directory
+    outputDir -- the location to create the release archive
+    '''
+    command = 'tar -cvf {outputDir}/{bundleId}.tar {bundleId}'.format(bundleId=bundleId, outputDir=outputDir)
+    print 'echo', command
+    proc = subprocess.Popen(command, shell=True, cwd=bundleBaseDir, executable='/bin/bash')
+    proc.communicate()
+    if 0 != proc.returncode:
+        raise RuntimeError('tar returned code {code}'.format(code=proc.returncode))
 
 
-def untarBundle(tarFile, targetLocation):
-    pass
+def untarBundle(bundleTarFile, outputDir):
+    '''explode the release tar file into the output directory    '''
+    command = 'tar -xvf {tarFile}'.format(tarFile=bundleTarFile)
+    print 'echo', command
+    proc = subprocess.Popen(command, shell=True, cwd=outputDir, executable='/bin/bash')
+    proc.communicate()
+    if 0 != proc.returncode:
+        raise RuntimeError('tar returned code {code}'.format(code=proc.returncode))
 
 
 def runScript():

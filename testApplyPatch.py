@@ -8,6 +8,7 @@ import poc
 import subprocess
 import os
 import filecmp
+from pprint import pprint
 
 class TargetRepository:
     '''target for patch file application.
@@ -52,6 +53,79 @@ class TargetDirectory:
         files = os.listdir(self.path)
         return fileName in files
        
+class TestUntarTar(unittest.TestCase):
+    def setUp(self):
+        self.inputsPath = os.path.join(os.getcwd(),'test')
+        self.outputsPath = os.path.join(self.inputsPath, 'UntarTar')
+        # create the output directory if necessary
+        if not os.path.exists(self.outputsPath):
+            os.mkdir(self.outputsPath)
+            
+    def testTarBundle(self):
+
+        print ''
+        print '--------------------------------------------------'
+        print '-- testTarBundle'
+        print '--------------------------------------------------'
+        print ''
+        
+        
+        bundleId = '12346'
+        bundleBaseDir = os.path.join(self.inputsPath)
+        expectedTarFilePath = os.path.join(self.outputsPath, '12346.tar')
+        
+        print '** create the archive'
+        poc.tarBundle(bundleId, bundleBaseDir, self.outputsPath)
+        
+        print '** verify the file was created in the expected location'
+        self.assertTrue(os.path.isfile(expectedTarFilePath), 'tar file was not created in the expected location')
+
+        # usign the untarBundle function to aid in comparison of the archive.
+        # TODO find a better way.        
+        excpedtedDirectory = os.path.join(self.inputsPath, bundleId)
+        observedOutputDirectory = os.path.join(self.outputsPath, bundleId)
+        print '** explode the archive'
+        poc.untarBundle(expectedTarFilePath, self.outputsPath)
+        
+        print '** check the directory against the expected output'
+        compare = filecmp.dircmp(observedOutputDirectory, excpedtedDirectory)
+        
+        print '** report of the directory comparison'
+        compare.report()
+
+        pprint(compare.left_only)
+        pprint(compare.right_only)
+        
+        self.assertFalse(compare.left_only or compare.right_only, 'exploded archive differes from expected')
+        
+    def testUntarBundle(self):
+        
+        print ''
+        print '--------------------------------------------------'
+        print '-- testUntarBundle'
+        print '--------------------------------------------------'
+        print ''
+        
+        bundleId = '12345'
+        bundleTarFile = os.path.join(self.inputsPath, '12345.tar')
+        
+        expectedOutput = os.path.join(self.inputsPath, bundleId)
+        observedOutput = os.path.join(self.outputsPath, bundleId)
+        
+        print '** explode the archive'
+        poc.untarBundle(bundleTarFile, self.outputsPath)
+        
+        print '** check the directory against the expected output'
+        compare = filecmp.dircmp(expectedOutput, observedOutput)
+        
+        print '** report of the directory comparison'
+        compare.report()
+
+        pprint(compare.left_only)
+        pprint(compare.right_only)
+        
+        self.assertFalse(compare.left_only or compare.right_only, 'exploded archive differes from expected')
+        
 class TestCryptKeeper(unittest.TestCase):
     def setUp(self):
         self.inputsPath = os.path.join(os.getcwd(),'test')
